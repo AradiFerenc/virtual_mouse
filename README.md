@@ -20,3 +20,7 @@ Ip webcam from play store
 3. Make sure the pc and the phone are on the same network
 4. Write the ip as a program argument between ""-s
 5. Run main.py with the ip as the first argument
+
+# Arguments
+First argument is the ip of the server. \
+Second argument is that the image should be flipped in orientation or not.
