@@ -5,7 +5,9 @@ This is a university project for our "advanced computer vision" class.
 ### Python packages
 opencv-python \
 numpy \
-mediapipe
+mediapipe \
+pyautogui \
+screeninfo
 
 ### Android
 Ip webcam from play store
