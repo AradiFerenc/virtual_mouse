@@ -37,8 +37,10 @@ class GestureDetector:
             return False
 
 IP = ""
+shouldFlipImage = False
 if __name__ == "__main__":
     IP = sys.argv[1]
+    shouldFlipImage = sys.argv[2].lower() == 'true'
 
 if IP == "":
     print("No ip address provided, aborting...")
@@ -60,7 +62,8 @@ while cap.isOpened():
         break
 
     ret, frame = cap.read()
-    frame = cv2.flip(frame, 1)
+    if shouldFlipImage:
+        frame = cv2.flip(frame, 1)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     gestureDetector.process(rgbf=rgb_frame)
