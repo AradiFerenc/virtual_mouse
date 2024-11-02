@@ -46,9 +46,9 @@ if IP == "":
     print("No ip address provided, aborting...")
     exit(-1)
 
-# cap = cv2.VideoCapture('https://' + IP + ':8080/video')
+cap = cv2.VideoCapture('https://' + IP + ':8080/video')
 
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 gestureDetector = GestureDetector()
 
 monitor = get_monitors()[0]
