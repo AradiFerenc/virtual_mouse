@@ -4,7 +4,8 @@ This is a university project for our "advanced computer vision" class.
 # Requirements
 ### Python packages
 opencv-python \
-numpy
+numpy \
+mediapipe
 
 ### Android
 Ip webcam from play store
