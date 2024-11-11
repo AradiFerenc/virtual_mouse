@@ -1,9 +1,16 @@
+import sys
 import cv2
 import mediapipe.python.solutions.hands as mph
 import mediapipe.python.solutions.drawing_utils as draw
 import mediapipe.python.solutions.drawing_styles as drawstyle
 
-IP = "192.168.1.11"
+IP = ""
+if __name__ == "__main__":
+    IP = sys.argv[1]
+
+if IP == "":
+    print("No ip address provided, aborting...")
+    exit(-1)
 
 hands = mph.Hands(
     static_image_mode=False,

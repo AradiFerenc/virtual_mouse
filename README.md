@@ -13,10 +13,8 @@ Ip webcam from play store
 
 
 # Usage
-1. Open main.py
-2. Start ip webcam app on your phone
-3. Start the webcam server on the phone
+1. Start ip webcam app on your phone
+2. Start the webcam server on the phone
 3. Make sure the pc and the phone are on the same network
-4. Write the ip into the ip variable at the top of the file
-5. Save main.py
-6. Run main.py
+4. Write the ip as a program argument between ""-s
+5. Run main.py with the ip as the first argument
