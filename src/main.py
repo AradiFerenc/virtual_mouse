@@ -1,84 +1,56 @@
-import sys
 import cv2
-import mediapipe.python.solutions.hands as mph
-import mediapipe.python.solutions.drawing_utils as draw
-import mediapipe.python.solutions.drawing_styles as drawstyle
+import mediapipe as mp
 import pyautogui
-from screeninfo import get_monitors
+import numpy as np
+
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7, min_tracking_confidence=0.7)
+
+def get_landmark_coordinates(landmark, frame_width, frame_height):
+    return int(landmark.x * frame_width), int(landmark.y * frame_height)
+
+def detect_click_gestures(landmarks):
+    fingers = {
+        "index": landmarks[8].y < landmarks[6].y,
+        "middle": landmarks[12].y < landmarks[10].y,
+    }
+    left_click = not fingers["index"] and fingers["middle"]
+    right_click = fingers["index"] and not fingers["middle"]
+    return left_click, right_click
 
 
-class GestureDetector:
-    def __init__(self):
-        self.hands = mph.Hands(
-            static_image_mode=False,
-            max_num_hands=1,
-            min_detection_confidence=0.8)
-        self.detected_hands = None
-        self.previous_hands = None
-
-    def process(self, rgbf):
-        self.previous_hands = self.detected_hands
-        self.detected_hands = self.hands.process(rgbf)
-
-    def getDetectedHands(self):
-        return self.detected_hands.multi_hand_landmarks
-
-    def drawLandmarksOnImage(self, image):
-        if self.detected_hands.multi_hand_landmarks:
-            for hand_landmarks in self.detected_hands.multi_hand_landmarks:
-                draw.draw_landmarks(
-                    image,
-                    hand_landmarks,
-                    None,
-                    drawstyle.get_default_hand_landmarks_style(),
-                    drawstyle.get_default_hand_connections_style())
-            return True
-        else:
-            return False
-
-IP = ""
-shouldFlipImage = False
-if __name__ == "__main__":
-    IP = sys.argv[1]
-    shouldFlipImage = sys.argv[2].lower() == 'true'
-
-if IP == "":
-    print("No ip address provided, aborting...")
-    exit(-1)
-
-cap = cv2.VideoCapture('https://' + IP + ':8080/video')
-
-# cap = cv2.VideoCapture(0)
-gestureDetector = GestureDetector()
-
-monitor = get_monitors()[0]
-screen_width = monitor.width
-screen_height = monitor.height
+cap = cv2.VideoCapture(0)
+screen_width, screen_height = pyautogui.size()
 
 while cap.isOpened():
-    key = cv2.waitKey(1)
-    if key == ord('q'):
-        print("quitting...")
-        break
-
     ret, frame = cap.read()
-    if shouldFlipImage:
-        frame = cv2.flip(frame, 1)
+    if not ret:
+        break
+    frame = cv2.flip(frame, 1)
+    frame_height, frame_width, _ = frame.shape
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    gestureDetector.process(rgbf=rgb_frame)
-    detected_hands = gestureDetector.getDetectedHands()
-    if detected_hands:
-        index_finger_tip_normalized = detected_hands[0].landmark[8]
-        cursor_x = index_finger_tip_normalized.x * screen_width
-        cursor_y = index_finger_tip_normalized.y * screen_height
-        pyautogui.moveTo(cursor_x, cursor_y)
-    if not gestureDetector.drawLandmarksOnImage(frame):
-        print("No hands detected, skipping frame...")
-    try:
-        cv2.imshow('virtual_mosuse', cv2.resize(frame, (640, 360)))
-    except cv2.error:
-        print("There was an error in opencv, aborting...")
+    result = hands.process(rgb_frame)
+    if result.multi_hand_landmarks:
+        for hand_landmarks in result.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+            x, y = get_landmark_coordinates(hand_landmarks.landmark[9], frame_width, frame_height)
+
+            screen_x = np.interp(x, (0, frame_width), (0, screen_width))
+            screen_y = np.interp(y, (0, frame_height), (0, screen_height))
+            pyautogui.moveTo(screen_x, screen_y)
+
+            left_click, right_click = detect_click_gestures(hand_landmarks.landmark)
+            if left_click:
+                pyautogui.click(button='left')
+            elif right_click:
+                pyautogui.click(button='right')
+
+    cv2.imshow("Virtual Mouse", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
 cap.release()
 cv2.destroyAllWindows()
