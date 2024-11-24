@@ -19,8 +19,11 @@ middle_inside = False
 
 screen_width, screen_height = pyautogui.size()
 
-cap = cv2.VideoCapture(0)
+click_display_n_frames = 5
+right_click_draw_counter = 0
+left_click_draw_counter = 0
 
+cap = cv2.VideoCapture(0)
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -52,6 +55,7 @@ while cap.isOpened():
                 if not index_inside:
                     pyautogui.click(button='left')
                     index_inside = True
+                    left_click_draw_counter = 1
             else:
                 index_inside = False
 
@@ -59,6 +63,7 @@ while cap.isOpened():
                 if not middle_inside:
                     pyautogui.click(button='right')
                     middle_inside = True
+                    right_click_draw_counter = 1
             else:
                 middle_inside = False
 
@@ -69,6 +74,14 @@ while cap.isOpened():
 
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
 
+    if (left_click_draw_counter % click_display_n_frames != 0):
+        left_click_draw_counter += 1
+        cv2.putText(frame, "Left Click", (00, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
+                    cv2.LINE_AA, False)
+    if(right_click_draw_counter % click_display_n_frames != 0):
+        right_click_draw_counter+=1
+        cv2.putText(frame, "Right Click", (00, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2,
+                    cv2.LINE_AA, False)
     cv2.imshow("Virtual Mouse", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
