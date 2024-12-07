@@ -94,7 +94,7 @@ while cap.isOpened():
         left_click_draw_counter += 1
         cv2.putText(frame, "Left Click", (00, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
                     cv2.LINE_AA, False)
-    if(right_click_draw_counter % click_display_n_frames != 0):
+    if (right_click_draw_counter % click_display_n_frames != 0):
         right_click_draw_counter+=1
         cv2.putText(frame, "Right Click", (00, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2,
                     cv2.LINE_AA, False)
