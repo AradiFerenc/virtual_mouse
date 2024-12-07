@@ -88,8 +88,7 @@ def detect_gestures(landmarks_list, processed):
                 pyautogui.rightClick()
 
         # DOUBLE click
-        elif (not is_thumb_closed(landmarks_list) and
-                is_index_finger_closed(landmarks_list) and
+        elif (is_index_finger_closed(landmarks_list) and
                 is_middle_finger_closed(landmarks_list)):
             if not detect_gestures.middle_click_prev:
                 detect_gestures.middle_click_prev = True
@@ -136,7 +135,9 @@ def main():
 
             detect_gestures(landmarks_list, processed)
 
-            cv2.imshow('Feed', frame)
+            window_name = "Feed"
+            cv2.imshow(window_name, frame)
+            cv2.setWindowProperty(window_name, cv2.WND_PROP_TOPMOST, 1)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
