@@ -63,10 +63,6 @@ def move_mouse(landmark):
             return
         x = int(move_mouse.filters[0]((landmark.x - move_mouse.prev_x) * mouse_dpi + mouse_pos.x))
         y = int(move_mouse.filters[1]((landmark.y - move_mouse.prev_y) * mouse_dpi + mouse_pos.y))
-        x = min(x, pyautogui.size().width - 1)
-        x = max(0, x)
-        y = min(y, pyautogui.size().height - 1)
-        y = max(0, y)
         try:
             pyautogui.moveTo(x, y)
         finally:
