@@ -3,6 +3,7 @@ import mediapipe as mp
 import pyautogui
 import numpy as np
 
+camera_ID = 0
 mouse_dpi = 3200
 
 screen_width, screen_height = pyautogui.size()
@@ -24,7 +25,7 @@ def get_distance(first, second):
 def is_thumb_closed(landmarks_list):
     thumb_index_dist = get_distance(landmarks_list[4], landmarks_list[5])
     index_finger_joint_size = get_distance(landmarks_list[6], landmarks_list[5])
-    return thumb_index_dist < index_finger_joint_size * 0.75
+    return thumb_index_dist < index_finger_joint_size * 0.8
 
 
 def is_index_finger_closed(landmarks_list):
@@ -42,11 +43,12 @@ def is_middle_finger_closed(landmarks_list):
 def move_mouse(landmark):
     if landmark is not None:
         mouse_pos = pyautogui.position()
-        alpha = 0.5
-        landmark_x = alpha * landmark.x + (1 - alpha) * move_mouse.prev_x
-        landmark_y = alpha * landmark.y + (1 - alpha) * move_mouse.prev_y
-        x = int((landmark_x - move_mouse.prev_x) * move_mouse.dpi + mouse_pos.x)
-        y = int((landmark_y - move_mouse.prev_y) * move_mouse.dpi + mouse_pos.y)
+        x = int((landmark.x - move_mouse.prev_x) * move_mouse.dpi + mouse_pos.x)
+        y = int((landmark.y - move_mouse.prev_y) * move_mouse.dpi + mouse_pos.y)
+        if move_mouse.prev_x is None or move_mouse.prev_y is None:
+            move_mouse.prev_x = x
+            move_mouse.prev_y = y
+            return
         try:
             pyautogui.moveTo(x, y)
         finally:
@@ -112,7 +114,7 @@ detect_gestures.middle_click_prev = False
 
 
 def main():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(camera_ID)
     draw = mp.solutions.drawing_utils
     try:
         while cap.isOpened():
