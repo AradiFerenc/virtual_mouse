@@ -7,6 +7,7 @@ import numpy as np
 import threading
 import queue
 import pyautogui
+pyautogui.FAILSAFE = False
 
 from OneEuroFilter import OneEuroFilter
 
@@ -33,7 +34,7 @@ def get_distance(first, second):
 def is_thumb_closed(landmarks_list):
     thumb_index_dist = get_distance(landmarks_list[4], landmarks_list[5])
     index_finger_joint_size = get_distance(landmarks_list[6], landmarks_list[5])
-    return thumb_index_dist < index_finger_joint_size * 0.8
+    return thumb_index_dist < index_finger_joint_size * 0.7
 
 
 def is_index_finger_closed(landmarks_list):
@@ -48,7 +49,7 @@ def is_middle_finger_closed(landmarks_list):
     return thumb_size * 0.4 > middle_finger_size
 
 
-def move_mouse(landmark, landmarks_list):
+def move_mouse(landmark):
     global mouse_dpi
     if move_mouse.filters is None:
         move_mouse.filters = []
@@ -62,6 +63,10 @@ def move_mouse(landmark, landmarks_list):
             return
         x = int(move_mouse.filters[0]((landmark.x - move_mouse.prev_x) * mouse_dpi + mouse_pos.x))
         y = int(move_mouse.filters[1]((landmark.y - move_mouse.prev_y) * mouse_dpi + mouse_pos.y))
+        x = min(x, pyautogui.size().width - 1)
+        x = max(0, x)
+        y = min(y, pyautogui.size().height - 1)
+        y = max(0, y)
         try:
             pyautogui.moveTo(x, y)
         finally:
@@ -96,7 +101,7 @@ def detect_gestures(landmarks_list, processed):
 
         # MOVE mouse
         if thumb_closed:
-            move_mouse(pointer_landmark, landmarks_list)
+            move_mouse(pointer_landmark)
 
         # LEFT click
         if (index_finger_closed and
@@ -227,6 +232,7 @@ def main():
                 if ts == next_timestamp_to_draw:
                     output_queue.get()  # Remove from queue
                     window_name = "Feed"
+                    # cv2.imshow(window_name, cv2.resize(processed_frame, (200, 150)))
                     cv2.imshow(window_name, processed_frame)
                     cv2.setWindowProperty(window_name, cv2.WND_PROP_TOPMOST, 1)
                     next_timestamp_to_draw += 1
